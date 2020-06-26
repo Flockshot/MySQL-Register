@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -42,7 +43,7 @@ public class RegisterCommand implements CommandExecutor {
 			return true;
 		}
 
-		if(args.length != 3){
+		if(args.length != 1){
 			p.sendMessage(MessageManager.getMessage("WRONG_ARGUMENTS"));
 			return true;
 		}
@@ -55,11 +56,13 @@ public class RegisterCommand implements CommandExecutor {
 				p.sendMessage(MessageManager.getMessage("ALREADY_REGISTERED"));
 				return true;
 			}
-
+			
+			/*
 			if(!args[1].equalsIgnoreCase(args[2])){
 				p.sendMessage(MessageManager.getMessage("PASSWORDS_NOT_EQUAL"));
 				return true;
 			}
+			*/
 			
 			if(!RegisterCommand.validate(args[0])){
 				p.sendMessage(MessageManager.getMessage("INVALID_EMAIL"));
@@ -72,19 +75,19 @@ public class RegisterCommand implements CommandExecutor {
 				+ MysqlManager.getInfo(plugin, "Options.table-name") 
 				+ "` (" + MysqlManager.getInfo(plugin, "Options.user-column") 
 				+ ", "
-				+ MysqlManager.getInfo(plugin, "Options.password-column") 
-				+ ", "
 				+ MysqlManager.getInfo(plugin, "Options.uuid-column") 
 				+ ", "
 				+ MysqlManager.getInfo(plugin, "Options.email-column") 
-				+ ") VALUES (?, ?, ?, ?)");
+				+ ") VALUES (?, ?, ?)");
 			pre.setString(1, p.getName());
-			pre.setString(2, CoreManager.hash(args[1], c.getString("Hash")));
-			pre.setString(3, p.getUniqueId().toString());
-			pre.setString(4, args[0]);
+			//pre.setString(2, CoreManager.hash(args[1], c.getString("Hash")));
+			pre.setString(2, p.getUniqueId().toString());
+			pre.setString(3, args[0]);
 			pre.execute();
 			
 			p.sendMessage(MessageManager.getMessage("REGISTER_SUCCESS"));
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), plugin.getConfig().getString("Command").replaceAll("%player%", p.getName()));
+			
 
 		} catch (SQLException e) {
 			e.printStackTrace();
